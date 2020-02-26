@@ -2,10 +2,10 @@
     "name": "signifly/eventsource-generator",
     "description": "Code generation via yaml definitions",
     "keywords": [
-        "spatie",
+        "signifly",
         "eventsource-generator"
     ],
-    "homepage": "https://github.com/spatie/eventsource-generator",
+    "homepage": "https://github.com/signifly/eventsource-generator",
     "license": "MIT",
     "authors": [
         {
