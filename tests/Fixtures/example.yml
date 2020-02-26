@@ -1,0 +1,71 @@
+---
+namespace: DefinedWith\Yaml
+interfaces:
+  jsonPayload: \JsonSerializeable
+commands:
+  HideFinancialDetailsOfFraudulentCompany:
+    implements:
+      - \JsonSerializable
+      - \ArrayAccess
+    fields:
+      companyId: uuid
+  GoYamling:
+    description: Top level description on a command
+#    implements: \ArrayAccess
+    fields:
+      reference:
+      description:
+        type: string
+        nullable: true
+      tableNumber:
+        type: int
+        description: |
+          Multiple example values
+          With multiple line description.
+        nullable: true
+        example:
+          - 1
+          - 2
+          - 6
+      slogan:
+        description: This is the slogan!
+        type: string
+        example: >
+          "Hello world!"
+        serializer: |
+          (string) {param}
+        deserializer: |
+          (string) {param}
+    computed:
+      uppercasedSlogan:
+        type: string
+        description: Returns uppercased slogan
+        value: |
+          return strtoupper($this->slogan);
+events:
+  InheritFields:
+    implements: jsonPayload
+    fieldsFrom:
+      - GoYamling
+    fields:
+      anotherField: string
+#  WeWentYamling:
+#    implements:
+#      - jsonPayload
+#      - jsonPayload
+#    fields:
+#      reference:
+#        field: reference
+#        description: Overridden description
+#      slogan:
+#        type: string
+#        serializer: |
+#          (string) {param}
+#        deserializer: |
+#          (string) {param}
+#    computed:
+#      uppercasedSlogan:
+#        type: string
+#        description: Returns uppercased slogan
+#        value: |
+#          return strtoupper($this->slogan);

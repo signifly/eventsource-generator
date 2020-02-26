@@ -1,0 +1,31 @@
+---
+types:
+  uuid:
+    type: Ramsey\Uuid\UuidInterface
+    nullable: true
+    description: UUID v4
+    example: >
+      "c0b47bc5-2aaa-497b-83cb-11d97da03a95"
+    serializer: |
+      {param}->toString()
+    deserializer: |
+      \Ramsey\Uuid\Uuid::fromString({param})
+fields:
+  reference:
+    type: uuid
+    nullable: false
+    description: Non-nullable reference field
+    example: >
+      "c0b47bc5-2aaa-497b-83cb-11d97da03a95"
+  anotherReference:
+    type: uuid
+    description: Nullable reference field
+  title:
+    type: string
+    example:
+      - Some Example Title
+      - Another example title
+    serializer: |
+      (string) {param}
+    deserializer: |
+      (string) {param}

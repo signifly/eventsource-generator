@@ -1,0 +1,5 @@
+---
+namespace: HelloWorld
+commands:
+#  InheritCommand:
+#    fields:

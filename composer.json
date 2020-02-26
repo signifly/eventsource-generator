@@ -1,0 +1,55 @@
+{
+    "name": "signifly/eventsource-generator",
+    "description": "Code generation via yaml definitions",
+    "keywords": [
+        "spatie",
+        "eventsource-generator"
+    ],
+    "homepage": "https://github.com/spatie/eventsource-generator",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matthias Larsen",
+            "email": "msl@signifly.com",
+            "homepage": "https://signifly.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4",
+        "nette/php-generator": "^3.3",
+        "phpdocumentor/reflection-docblock": "^5.0",
+        "symfony/yaml": "^3.2|^4.0|^5.0"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^4.3",
+        "phpunit/phpunit": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Signifly\\EventsourceGenerator\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Signifly\\EventsourceGenerator\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Signifly\\EventsourceGenerator\\EventsourceGeneratorServiceProvider"
+            ],
+            "aliases": {
+                "EventsourceGenerator": "Signifly\\EventsourceGenerator\\EventsourceGeneratorFacade"
+            }
+        }
+    }
+}
