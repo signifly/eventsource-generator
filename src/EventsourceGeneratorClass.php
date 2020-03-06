@@ -1,8 +1,8 @@
 <?php
 
-namespace Signifly\EventsourceGenerator;
+namespace Signifly\EventSourceGenerator;
 
-class EventsourceGeneratorClass
+class EventSourceGeneratorClass
 {
     /**
      * Create a new Skeleton Instance.

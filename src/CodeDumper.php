@@ -1,29 +1,30 @@
 <?php
 
-namespace Signifly\EventsourceGenerator;
+namespace Signifly\EventSourceGenerator;
 
+use Illuminate\Support\Str;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
 
 class CodeDumper
 {
-    /**
-     * Create a new Skeleton Instance.
-     */
-    public function __construct()
+    private string $actionOnMissingExample;
+
+    public function __construct(string $actionOnMissingExample = 'ignore')
     {
-        // constructor body
+        $this->actionOnMissingExample = $actionOnMissingExample;
     }
 
     public function dumpAll(array $groups)
     {
+        // todo: group by namespace if multiple files have the same namespace
         return array_map(fn ($group) => $this->dump($group), $groups);
     }
 
     public function dump(DefinitionGroup $group, bool $withHelpers = true)
     {
         $namespace = new PhpNamespace($group->namespace() ?? '');
-//        $namespace->addUse('EventSauce\EventSourcing\Serialization\SerializablePayload');
+        $namespace->addUse('EventSauce\EventSourcing\Serialization\SerializablePayload');
 
         foreach ([...$group->commands(), ...$group->events()] as $command) {
             $class = $namespace->addClass($command->getName());
@@ -38,6 +39,14 @@ class CodeDumper
 
             $this->hydrateProperties($class, $command->getFields());
             $this->hydrateComputed($class, $command->getComputed());
+        }
+
+        foreach ($group->fieldsAndTypes() as $fieldsOrType) {
+            if (TypeNormalizer::isNativeType($fieldsOrType->getType())) {
+                continue;
+            }
+
+            $namespace->addUse($fieldsOrType->getType());
         }
 
         return $namespace;
@@ -66,12 +75,17 @@ class CodeDumper
         $toPayload->addBody('return [');
 
         $fromPayload = $class->addMethod('fromPayload')
+            ->setStatic()
             ->setReturnType('self');
         $fromPayload->addParameter('payload')
             ->setType('array');
         $fromPayload->addBody("return new {$class->getName()}(");
 
         $helpers = [];
+
+        $helpConstructor = [];
+        $helpConstructorArgs = [];
+        $helpConstructorVals = [];
 
         foreach ($fields as $field) {
             $constructor->addParameter($field->getName())
@@ -87,8 +101,9 @@ class CodeDumper
             if ($field->getDescription()) {
                 $prop->addComment($field->getDescription());
             }
+
             foreach ($field->getExamples() as $example) {
-                $prop->addComment('@example '.$example);
+                $prop->addComment('@example '.((string) $example));
             }
 
             $class->addMethod($attribute = $field->getName())
@@ -109,6 +124,9 @@ class CodeDumper
 
             // todo: snake case / camel case deserialize/serialize payload
             $serialize = str_replace(['{type}', '{param}'], [$field->getType(), "\$this->{$field->getName()}"], trim($field->getSerializer()));
+            if ($field->getNullable()) {
+                $serialize = "\$this->{$field->getName()} === null ? null : ".$serialize;
+            }
             $toPayload->addBody("\t'{$field->getName()}' => {$serialize},");
 
             $deserialize = str_replace(
@@ -125,20 +143,49 @@ class CodeDumper
                 $example = $this->makeExampleValue($field);
             } else {
                 $example = $field->getExamples()[0];
+                $isString = $field->getType() === 'string' || $field->getType() === '?string';
+                if ($isString && ! Str::startsWith($example, ['"', "'"])) {
+                    $example = "'".addslashes($example)."'";
+                }
             }
-            $helpers[] = str_replace(['{type}', '{param}'], [$field->getType(), "{$example}"], trim($field->getDeserializer()));
+
+            if ($example === null) {
+                $helpConstructor[] = ucfirst($field->getName());
+                $helpConstructorArgs[] = $field;
+                $helpConstructorVals[] = '$'.$field->getName();
+            } else {
+                $example = str_replace('{type}', $field->getType(), $example);
+                $helpConstructorVals[] = $helpers[] = str_replace(
+                    ['{type}', '{param}'],
+                    [$field->getType(), "{$example}"],
+                    trim($field->getDeserializer())
+                );
+            }
+        }
+
+        if (! empty($helpConstructor)) {
+            $help = $class->addMethod('with'.implode('And', $helpConstructor))
+                ->setStatic()
+                ->addComment('@codeCoverageIgnore')
+                ->setReturnType('self')
+                ->addBody("return new {$class->getName()}(")
+                ->addBody("\t".implode(",\n\t", $helpConstructorVals))
+                ->addBody(');');
+            foreach ($helpConstructorArgs as $args) {
+                $help->addParameter($args->getName())->setType($args->getType())->setNullable($args->getNullable());
+            }
+        } else {
+            $class->addMethod('with')
+                ->setStatic()
+                ->addComment('@codeCoverageIgnore')
+                ->setReturnType('self')
+                ->addBody("return new {$class->getName()}(")
+                ->addBody("\t".implode(",\n\t", $helpers))
+                ->addBody(');');
         }
 
         $toPayload->addBody('];');
         $fromPayload->addBody(');');
-
-        $class->addMethod('with')
-            ->setStatic()
-            ->addComment('@codeCoverageIgnore')
-            ->setReturnType('self')
-            ->addBody("return new {$class->getName()}(")
-            ->addBody("\t".implode(",\n\t", $helpers))
-            ->addBody(');');
 
         // todo: ::with() with missing example values?
         // todo: computed with params?
@@ -155,12 +202,22 @@ class CodeDumper
             'string' => "'Lorem ipsum'",
             'int' => 5,
             'float' => 13.37,
+            'bool' => 1,
         ];
 
-        if (! $value = ($map[$field->getType()] ?? false)) {
-            throw new \LogicException("Missing example value for {$field->getName()} of type {$field->getType()}");
+        if (! isset($map[$field->getType()])) {
+            if (in_array($this->actionOnMissingExample, ['warn', 'error'])) {
+                $exception = new \LogicException("Missing example value for {$field->getName()} of type {$field->getType()}");
+                if ($this->actionOnMissingExample === 'error') {
+                    throw $exception;
+                }
+
+                dump($exception->getMessage());
+            }
+
+            return;
         }
 
-        return $value;
+        return $map[$field->getType()];
     }
 }

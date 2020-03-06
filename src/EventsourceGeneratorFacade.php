@@ -1,13 +1,13 @@
 <?php
 
-namespace Signifly\EventsourceGenerator;
+namespace Signifly\EventSourceGenerator;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Signifly\EventsourceGenerator\EventsourceGeneratorClass
+ * @see \Signifly\EventSourceGenerator\EventSourceGeneratorClass
  */
-class EventsourceGeneratorFacade extends Facade
+class EventSourceGeneratorFacade extends Facade
 {
     /**
      * Get the registered name of the component.

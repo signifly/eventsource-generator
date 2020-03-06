@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Signifly\EventsourceGenerator;
+namespace Signifly\EventSourceGenerator;
+
+use Illuminate\Support\Str;
 
 class Definition
 {
@@ -140,21 +142,30 @@ class Definition
 
     public function getType(): string
     {
+        $type = $this->getDefinedType();
+
+        return Str::startsWith($type, '?')
+            ? Str::substr($type, 1)
+            : $type;
+    }
+
+    protected function getDefinedType()
+    {
         $t = $this->resolveField('type');
         if ($t === null) {
             $type = $this->type ?? $this->field;
             throw new \LogicException("Could not resolve type '{$type}' for field {$this->name}.");
         }
         $type = $this->definitionGroup->resolveType($t);
+
+        $returnVal = $type;
         if (! $type) {
-            return $t;
+            $returnVal = $t;
+        } elseif (is_object($type)) {
+            $returnVal = $type->getType();
         }
 
-        if (is_object($type)) {
-            return $type->getType();
-        }
-
-        return $type;
+        return $returnVal;
     }
 
     public function getField(): string
@@ -164,7 +175,10 @@ class Definition
 
     public function getNullable(): bool
     {
-        return (bool) $this->resolveField('nullable') ?? false;
+        $definedType = $this->getDefinedType();
+        $nullable = (bool) ($this->resolveField('nullable') ?? false);
+
+        return Str::startsWith($definedType, '?') || $nullable;
     }
 
     public function getDescription(): ?string
@@ -211,10 +225,15 @@ class Definition
     {
         $parents = [];
         foreach ($this->fieldsFrom ?? [] as $field) {
-            $parent = $this->definitionGroup->resolveFieldsFrom($this->fieldsFrom);
+            $parent = $this->definitionGroup->resolveFieldsFrom([$field['name']]);
             if (empty($parent)) {
-                throw new \LogicException("The fields from '{$field}' could not be found in the current namespace for {$this->name}.");
+                throw new \LogicException("The fields from '{$field['name']}' could not be found in the current namespace for {$this->name}.");
             }
+
+            $except = $field['except'] ?? [];
+            $parent = array_filter($parent, function (self $field) use ($except) {
+                return ! in_array($field->getName(), $except);
+            });
 
             $parents = [...$parents, ...$parent];
         }
@@ -244,14 +263,29 @@ class Definition
         $method = 'get'.ucfirst($attribute);
         if ($this->field) {
             $field = $this->definitionGroup->resolveField($this->field);
-            if ($field) {
+            if ($field !== null) {
                 if (($value = $field->{$method}()) !== null) {
                     return $value;
                 }
 
-                $type = $this->definitionGroup->resolveType($field->type);
-                if ($type && ($value = $type->{$method}()) !== null) {
-                    return $value;
+                if ($field->type !== null) {
+                    $type = $this->definitionGroup->resolveType($field->type);
+                    $isNative = is_string($type) && TypeNormalizer::isNativeType($type);
+                    if ($isNative) {
+                        // todo: this fixes `Call to a member function getDescription() on string`
+                        //       when using the following definitions:
+                        // fields:
+                        //     orderNumber:
+                        //     type: string
+                        //     example: 'MCS00042'
+                        // commands:
+                        //     Test:
+                        //        orderNumber:
+                        return;
+                    }
+                    if ($type && ($value = $type->{$method}()) !== null) {
+                        return $value;
+                    }
                 }
             }
         }

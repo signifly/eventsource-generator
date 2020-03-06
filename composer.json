@@ -17,22 +17,26 @@
     ],
     "require": {
         "php": "^7.4",
+        "ext-json": "*",
+        "illuminate/support": "^7.0",
         "nette/php-generator": "^3.3",
         "phpdocumentor/reflection-docblock": "^5.0",
         "symfony/yaml": "^3.2|^4.0|^5.0"
     },
     "require-dev": {
+        "eventsauce/eventsauce": "^0.8.0",
+        "phpunit/phpunit": "^9.0",
         "symfony/var-dumper": "^4.3",
-        "phpunit/phpunit": "^8.2"
+        "wnx/laravel-stats": "^2.1"
     },
     "autoload": {
         "psr-4": {
-            "Signifly\\EventsourceGenerator\\": "src"
+            "Signifly\\EventSourceGenerator\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Signifly\\EventsourceGenerator\\Tests\\": "tests"
+            "Signifly\\EventSourceGenerator\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -45,10 +49,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Signifly\\EventsourceGenerator\\EventsourceGeneratorServiceProvider"
+                "Signifly\\EventSourceGenerator\\EventSourceGeneratorServiceProvider"
             ],
             "aliases": {
-                "EventsourceGenerator": "Signifly\\EventsourceGenerator\\EventsourceGeneratorFacade"
+                "EventsourceGenerator": "Signifly\\EventSourceGenerator\\EventSourceGeneratorFacade"
             }
         }
     }

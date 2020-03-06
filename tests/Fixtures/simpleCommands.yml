@@ -1,0 +1,51 @@
+---
+namespace: SimpleTest
+commands:
+  CommandWithDescription:
+    description: "Im a command"
+    fields:
+
+  CommandWithInterfaces:
+    implements:
+      - aliasedInterface
+      - \Signifly\EventSourceGenerator\Tests\Fixtures\NoopInterface
+
+  CommandWithSimpleField:
+    fields:
+      simpleString:
+        type: string
+
+  CommandWithMultipleFields:
+    fields:
+      simpleString:
+        type: string
+      simpleInt:
+        type: int
+
+  CommandWithSingleInheritance:
+    fields:
+      uuidField:
+
+  CommandWithOverridenFields:
+    fields:
+      uuidField:
+      nonNullableUuid:
+      overrideUuidDescription:
+      overrideUuidExample:
+
+  CommandWithLocalOverride:
+    fields:
+      localOverrideNullableUuid:
+        field: nonNullableUuid
+        nullable: true
+      localOverrideUuidDescription:
+        field: overrideUuidDescription
+        description: World, Hello
+      localOverrideUuidExample:
+        field: overrideUuidExample
+        example: "4321"
+      composedOverride:
+        field: overrideUuidExample
+        nullable: true
+        description: Wow
+

@@ -1,8 +1,9 @@
 ---
+interfaces:
+  aliasedInterface: \Signifly\EventSourceGenerator\Tests\Fixtures\AliasedNoopInterface
 types:
   uuid:
     type: Ramsey\Uuid\UuidInterface
-    nullable: true
     description: UUID v4
     example: >
       "c0b47bc5-2aaa-497b-83cb-11d97da03a95"
@@ -10,16 +11,21 @@ types:
       {param}->toString()
     deserializer: |
       \Ramsey\Uuid\Uuid::fromString({param})
+  ?uuid:
+    type: uuid
+    nullable: true
 fields:
-  reference:
-    type: uuid
+  uuidField:
+    type: ?uuid
+  nonNullableUuid:
+    type: ?uuid
     nullable: false
-    description: Non-nullable reference field
-    example: >
-      "c0b47bc5-2aaa-497b-83cb-11d97da03a95"
-  anotherReference:
-    type: uuid
-    description: Nullable reference field
+  overrideUuidDescription:
+    type: ?uuid
+    description: Hello World
+  overrideUuidExample:
+    type: ?uuid
+    example: "1234"
   title:
     type: string
     example:

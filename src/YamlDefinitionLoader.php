@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Signifly\EventsourceGenerator;
+namespace Signifly\EventSourceGenerator;
 
 use function file_get_contents;
 use function in_array;
@@ -11,16 +11,19 @@ use function is_array;
 use function is_string;
 use function pathinfo;
 use const PATHINFO_EXTENSION;
+use Signifly\EventSourceGenerator\Exceptions\InvalidConfiguration;
 use Symfony\Component\Yaml\Yaml;
 
 class YamlDefinitionLoader
 {
     private DefinitionGroup $general;
     private $groups = [];
+    private bool $logOutput;
 
-    public function __construct()
+    public function __construct(bool $logOutput = false)
     {
         $this->general = new DefinitionGroup();
+        $this->logOutput = $logOutput;
     }
 
     public function loadFiles(array $fileNames): array
@@ -46,6 +49,14 @@ class YamlDefinitionLoader
 
     protected function load(string $filename, DefinitionGroup $definitionGroup = null): DefinitionGroup
     {
+        if (! file_exists($filename)) {
+            throw InvalidConfiguration::definitionFileDoesNotExist($filename);
+        }
+
+        if ($this->logOutput) {
+            dump('===> File: '.$filename);
+        }
+
         /** @var string|bool $fileContents */
         $fileContents = file_get_contents($filename);
 
@@ -92,8 +103,8 @@ class YamlDefinitionLoader
                 foreach ((array) ($declaration['implements'] ?? []) + $defaultInterfaces[$fieldType] as $interface) {
                     $def->withInterface($interface);
                 }
-                foreach ((array) ($declaration['fieldsFrom'] ?? []) as $name) {
-                    $def->withFieldsFrom($name);
+                foreach ((array) ($declaration['fieldsFrom'] ?? []) as $obj) {
+                    $def->withFieldsFrom($obj);
                 }
                 if (isset($declaration['description'])) {
                     $def->withDescription($declaration['description']);
@@ -121,6 +132,9 @@ class YamlDefinitionLoader
         $definitions = [];
         foreach ($fields as $fieldName => $declaration) {
             $definition = new Definition($fieldName, $fieldType);
+//            if ($fieldName === 'fieldsFrom') {
+//                $declaration = ['fieldsFrom' => array_map(fn ($field) => $field['name'], $declaration)];
+//            }
 
             // if 'field' is set, it inherits
             $fields = $declaration['fields'] ?? ['fields' => $declaration];
@@ -130,10 +144,15 @@ class YamlDefinitionLoader
                     // fieldName: fieldType format.. fallback to fieldName as type if undefined
                     $value = ['field' => $value ?? $fieldName];
                 }
+
                 foreach ((array) $value as $k => $v) {
                     $method = 'with'.ucfirst($k);
                     foreach ((array) $v as $item) {
-                        $definition->$method($item);
+                        if (method_exists($definition, $method)) {
+                            $definition->$method($item);
+                        } elseif ($this->logOutput) {
+                            dump('Method not found: '.$method);
+                        }
                     }
                 }
             }

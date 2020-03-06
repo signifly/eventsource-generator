@@ -1,10 +1,10 @@
 <?php
 
-namespace Signifly\EventsourceGenerator;
+namespace Signifly\EventSourceGenerator;
 
 use Illuminate\Support\ServiceProvider;
 
-class EventsourceGeneratorServiceProvider extends ServiceProvider
+class EventSourceGeneratorServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -15,14 +15,6 @@ class EventsourceGeneratorServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/config.php' => config_path('eventsource-generator.php'),
             ], 'config');
-
-            /*
-            $this->loadViewsFrom(__DIR__.'/../resources/views', 'eventsource-generator');
-
-            $this->publishes([
-                __DIR__.'/../resources/views' => base_path('resources/views/vendor/eventsource-generator'),
-            ], 'views');
-            */
         }
     }
 

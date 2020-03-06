@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Signifly\EventsourceGenerator;
+namespace Signifly\EventSourceGenerator;
 
 use function ltrim;
 use ReflectionClass;
