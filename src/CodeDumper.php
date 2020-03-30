@@ -59,7 +59,7 @@ class CodeDumper
             $class->addMethod($comp->getName())
                 ->setReturnType($comp->getType())
                 ->addComment($comp->getDescription() ?? '')
-                ->addBody($comp->getValue());
+                ->addBody(str_replace('{type}', $comp->getType(), $comp->getValue()));
         }
     }
 
