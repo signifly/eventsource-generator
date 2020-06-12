@@ -20,11 +20,14 @@
         "ext-json": "*",
         "illuminate/support": "^7.0",
         "nette/php-generator": "^3.3",
+        "illuminate/filesystem": "^7.0",
+        "illuminate/console": "^7.0",
         "phpdocumentor/reflection-docblock": "^5.0",
-        "symfony/yaml": "^3.2|^4.0|^5.0"
+        "symfony/yaml": "^4.0|^5.0"
     },
     "require-dev": {
         "eventsauce/eventsauce": "^0.8.0",
+        "friendsofphp/php-cs-fixer": "^2.16",
         "phpunit/phpunit": "^9.0",
         "symfony/var-dumper": "^4.3",
         "wnx/laravel-stats": "^2.1"
@@ -52,7 +55,7 @@
                 "Signifly\\EventSourceGenerator\\EventSourceGeneratorServiceProvider"
             ],
             "aliases": {
-                "EventsourceGenerator": "Signifly\\EventSourceGenerator\\EventSourceGeneratorFacade"
+                "EventSourceGenerator": "Signifly\\EventSourceGenerator\\EventSourceGeneratorFacade"
             }
         }
     }

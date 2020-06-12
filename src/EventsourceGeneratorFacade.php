@@ -5,7 +5,7 @@ namespace Signifly\EventSourceGenerator;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Signifly\EventSourceGenerator\EventSourceGeneratorClass
+ * @see \Signifly\EventSourceGenerator\EventSourceGenerator
  */
 class EventSourceGeneratorFacade extends Facade
 {
