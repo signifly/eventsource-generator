@@ -1,6 +1,6 @@
 <?php
 
-namespace Signifly\EventSourceGenerator\Tests\Refactor;
+namespace Signifly\EventSourceGenerator\Tests\Refactor\Lexers;
 
 use PHPUnit\Framework\TestCase;
 use Signifly\EventSourceGenerator\Contracts\Lexer;

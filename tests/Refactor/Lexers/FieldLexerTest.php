@@ -1,27 +1,27 @@
 <?php
 
-namespace Signifly\EventSourceGenerator\Tests\Refactor;
+namespace Signifly\EventSourceGenerator\Tests\Refactor\Lexers;
 
 use PHPUnit\Framework\TestCase;
 use Signifly\EventSourceGenerator\Contracts\Lexer;
-use Signifly\EventSourceGenerator\Lexers\TypeLexer;
+use Signifly\EventSourceGenerator\Lexers\FieldLexer;
 
-class TypeLexerTest extends TestCase
+class FieldLexerTest extends TestCase
 {
     protected Lexer $lexer;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->lexer = new TypeLexer();
+        $this->lexer = new FieldLexer();
     }
 
     /** @test */
     public function it_parses_name()
     {
         $tokens = [
-            'types' => [
-                'someType' => [
+            'fields' => [
+                'someField' => [
                     'type' => 'myType',
                 ],
             ],
@@ -29,18 +29,37 @@ class TypeLexerTest extends TestCase
 
         $result = $this->lexer->analyze($tokens);
 
-        /** @var Type $type */
-        $type = array_pop($result['types']);
+        /** @var Field $field */
+        $field = array_pop($result['fields']);
 
-        $this->assertEquals('someType', $type->getName());
+        $this->assertEquals('someField', $field->getName());
+    }
+
+    /** @test */
+    public function it_parses_field_token()
+    {
+        $tokens = [
+            'fields' => [
+                'someField' => [
+                    'field' => 'myField',
+                ],
+            ],
+        ];
+
+        $result = $this->lexer->analyze($tokens);
+
+        /** @var Field $field */
+        $field = array_pop($result['fields']);
+
+        $this->assertEquals('myField', $field->getTemplate());
     }
 
     /** @test */
     public function it_parses_empty_namespace()
     {
         $tokens = [
-            'types' => [
-                'someType' => [
+            'fields' => [
+                'someField' => [
                     'type' => 'myType',
                 ],
             ],
@@ -48,12 +67,10 @@ class TypeLexerTest extends TestCase
 
         $result = $this->lexer->analyze($tokens);
 
-        $this->assertArrayHasKey('someType', $result['types']);
+        /** @var Field $field */
+        $field = array_pop($result['fields']);
 
-        /** @var Type $type */
-        $type = array_pop($result['types']);
-
-        $this->assertEquals('', $type->getNamespace());
+        $this->assertEquals('', $field->getNamespace());
     }
 
     /** @test */
@@ -61,8 +78,8 @@ class TypeLexerTest extends TestCase
     {
         $tokens = [
             'namespace' => 'MyNamespace',
-            'types' => [
-                'someType' => [
+            'fields' => [
+                'someField' => [
                     'type' => 'myType',
                 ],
             ],
@@ -70,12 +87,10 @@ class TypeLexerTest extends TestCase
 
         $result = $this->lexer->analyze($tokens);
 
-        $this->assertArrayHasKey('MyNamespace\\someType', $result['types']);
+        /** @var Field $field */
+        $field = array_pop($result['fields']);
 
-        /** @var Type $type */
-        $type = array_pop($result['types']);
-
-        $this->assertEquals('MyNamespace', $type->getNamespace());
+        $this->assertEquals('MyNamespace', $field->getNamespace());
     }
 
     /** @test */
@@ -88,8 +103,8 @@ class TypeLexerTest extends TestCase
 
         $tokens = [
             'namespace' => '\\MyNamespace',
-            'types' => [
-                'someType' => [
+            'fields' => [
+                'someField' => [
                     'type' => 'myType',
                 ],
             ],
@@ -97,29 +112,27 @@ class TypeLexerTest extends TestCase
 
         $result = $this->lexer->analyze($tokens);
 
-        $this->assertArrayHasKey('\\MyNamespace\\someType', $result['types']);
+        /** @var Field $field */
+        $field = array_pop($result['fields']);
 
-        /** @var Type $type */
-        $type = array_pop($result['types']);
-
-        $this->assertEquals('\\MyNamespace', $type->getNamespace());
+        $this->assertEquals('\\MyNamespace', $field->getNamespace());
     }
 
     /**
      * @test
      * @dataProvider fieldDataProvider
-     * @covers \Signifly\EventSourceGenerator\Models\Type::getType()
-     * @covers \Signifly\EventSourceGenerator\Models\Type::getNullable()
-     * @covers \Signifly\EventSourceGenerator\Models\Type::getDescription()
-     * @covers \Signifly\EventSourceGenerator\Models\Type::getExample()
-     * @covers \Signifly\EventSourceGenerator\Models\Type::getSerializer()
-     * @covers \Signifly\EventSourceGenerator\Models\Type::getUnserializer()
+     * @covers \Signifly\EventSourceGenerator\Models\Field::getType()
+     * @covers \Signifly\EventSourceGenerator\Models\Field::getNullable()
+     * @covers \Signifly\EventSourceGenerator\Models\Field::getDescription()
+     * @covers \Signifly\EventSourceGenerator\Models\Field::getExample()
+     * @covers \Signifly\EventSourceGenerator\Models\Field::getSerializer()
+     * @covers \Signifly\EventSourceGenerator\Models\Field::getUnserializer()
      */
     public function it_parses_fields($fieldName, $value): void
     {
         $tokens = [
-            'types' => [
-                'someType' => [
+            'fields' => [
+                'someField' => [
                     $fieldName => $value,
                 ],
             ],
@@ -127,7 +140,7 @@ class TypeLexerTest extends TestCase
 
         $result = $this->lexer->analyze($tokens);
 
-        $field = $result['types']['someType'];
+        $field = $result['fields']['someField'];
 
         $method = 'get'.ucfirst($fieldName);
         $this->assertEquals($value, $field->{$method}());
@@ -150,16 +163,16 @@ class TypeLexerTest extends TestCase
     public function it_considers_empty_definition_to_be_an_alias_of_a_type()
     {
         $tokens = [
-            'types' => [
-                'someType' => null,
+            'fields' => [
+                'someField' => null,
             ],
         ];
 
         $result = $this->lexer->analyze($tokens);
 
-        /** @var Type $type */
-        $type = array_pop($result['types']);
-        $this->assertEquals('someType', $type->getName());
-        $this->assertEquals('someType', $type->getType());
+        /** @var Field $field */
+        $field = array_pop($result['fields']);
+        $this->assertEquals('someField', $field->getName());
+        $this->assertEquals('someField', $field->getType());
     }
 }
