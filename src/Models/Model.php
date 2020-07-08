@@ -13,17 +13,17 @@ class Model
         $this->namespace = trim(implode('\\', array_slice(explode('\\', str_replace('/', '\\', $name)), 0, -1)), '\\');
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getNamespace()
+    public function getNamespace(): string
     {
         return $this->namespace;
     }
 
-    public function getFqcn()
+    public function getFqcn(): string
     {
         return $this->name.$this->namespace;
     }

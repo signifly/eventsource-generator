@@ -67,6 +67,9 @@ class InterfaceLexerTest extends TestCase
         ], $result);
     }
 
+    // todo: should probably not prefix with absolute namespace, but the namespace
+    //       the parsed file is located in?
+
     /** @test */
     public function it_prefixes_alias_with_absolute_namespace_if_relative_namespace_is_defined()
     {

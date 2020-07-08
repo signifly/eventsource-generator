@@ -26,9 +26,20 @@ class Type extends Model
         return $this;
     }
 
+    public function getType()
+    {
+        return $this->type;
+    }
+
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    // Used in tests
+    public function getNullable(): bool
+    {
+        return $this->isNullable();
     }
 
     public function setNullable(bool $nullable): self
@@ -67,6 +78,9 @@ class Type extends Model
         return $this->serializer;
     }
 
+    /**
+     * @todo Add validation?
+     */
     public function setSerializer(string $serializer): self
     {
         $this->serializer = $serializer;
@@ -79,6 +93,9 @@ class Type extends Model
         return $this->unserializer;
     }
 
+    /**
+     * @todo Add validation?
+     */
     public function setUnserializer(string $unserializer): self
     {
         $this->unserializer = $unserializer;
