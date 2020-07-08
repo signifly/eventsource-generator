@@ -25,6 +25,6 @@ class Model
 
     public function getFqcn(): string
     {
-        return $this->name.$this->namespace;
+        return $this->namespace.'\\'.$this->name;
     }
 }

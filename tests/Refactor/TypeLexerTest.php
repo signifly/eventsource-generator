@@ -16,16 +16,6 @@ class TypeLexerTest extends TestCase
         $this->lexer = new TypeLexer();
     }
 
-    // it resolves various namespace configurations
-    // stores the type at the correct index in returned array when using `analyze`
-    // if definition is empty, type is set to the field name
-    // it parses type from type field
-    // it parses nullable
-    // it parses description
-    // it parses example
-    // it parses serializer
-    // it parses unserializer
-
     /** @test */
     public function it_parses_name()
     {
@@ -58,6 +48,8 @@ class TypeLexerTest extends TestCase
 
         $result = $this->lexer->analyze($tokens);
 
+        $this->assertArrayHasKey('someType', $result['types']);
+
         /** @var Type $type */
         $type = array_pop($result['types']);
 
@@ -77,6 +69,8 @@ class TypeLexerTest extends TestCase
         ];
 
         $result = $this->lexer->analyze($tokens);
+
+        $this->assertArrayHasKey('MyNamespace\\someType', $result['types']);
 
         /** @var Type $type */
         $type = array_pop($result['types']);
@@ -102,6 +96,8 @@ class TypeLexerTest extends TestCase
         ];
 
         $result = $this->lexer->analyze($tokens);
+
+        $this->assertArrayHasKey('\\MyNamespace\\someType', $result['types']);
 
         /** @var Type $type */
         $type = array_pop($result['types']);
