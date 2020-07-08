@@ -5,7 +5,7 @@ namespace Signifly\EventSourceGenerator\Models;
 class Model
 {
     private string $name;
-    private string $namespace;
+    protected string $namespace;
 
     public function __construct($name)
     {

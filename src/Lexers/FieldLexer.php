@@ -24,7 +24,7 @@ class FieldLexer extends TypeLexer
             $field = Field::fromType($type);
 
             if (isset($definition['field'])) {
-                $field->setTemplate($field);
+                $field->setTemplate($definition['field']);
             }
 
             $registry['fields'][$field->getFqcn()] = $field;

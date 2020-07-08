@@ -19,6 +19,11 @@ class Type extends Model
         return $this;
     }
 
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
     public function setType(string $type): self
     {
         $this->type = $type;
