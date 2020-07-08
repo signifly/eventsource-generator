@@ -8,7 +8,6 @@ use Nette\PhpGenerator\PhpNamespace;
 use Signifly\EventSourceGenerator\Contracts\Generator;
 use Signifly\EventSourceGenerator\Models\Command;
 use Signifly\EventSourceGenerator\Models\Computed;
-use Signifly\EventSourceGenerator\Models\Event;
 use Signifly\EventSourceGenerator\Models\Field;
 use Signifly\EventSourceGenerator\Models\Model;
 use Signifly\EventSourceGenerator\Models\Type;
@@ -84,10 +83,10 @@ class CommandGenerator implements Generator
     private function hydrateComputed(ClassType $class, array $computes)
     {
         /** @var Computed $compute */
-        foreach ($computes as $compute) {
-            $class->addMethod($compute->getName())
+        foreach ($computes as $method => $compute) {
+            $class->addMethod($method)
                 ->setReturnType($this->resolveType($compute->getType()))
-                ->addComment($compute->getDescription() ?? '')
+                ->addComment($compute->getDescription())
                 ->addBody($compute->getValue());
         }
     }
