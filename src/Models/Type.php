@@ -7,7 +7,6 @@ class Type extends Model
     protected string $template;
     protected string $type;
     protected bool $nullable = false;
-    protected string $description;
     protected string $example;
     protected string $serializer;
     protected string $unserializer;
@@ -50,18 +49,6 @@ class Type extends Model
     public function setNullable(bool $nullable): self
     {
         $this->nullable = $nullable;
-
-        return $this;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
 
         return $this;
     }

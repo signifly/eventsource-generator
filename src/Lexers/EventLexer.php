@@ -45,6 +45,10 @@ class EventLexer implements Lexer
 
         $event = new Event($name);
 
+        if (isset($definition['description'])) {
+            $event->setDescription($definition['description']);
+        }
+
         if (isset($definition['implements'])) {
             $event->setInterfaces($definition['implements']);
         }
@@ -56,7 +60,7 @@ class EventLexer implements Lexer
         if (isset($definition['fields'])) {
             $fields = $this->fieldLexer->analyze([
                 'fields' => $definition['fields'],
-                'namespace' => $tokens['namespace'] ?? null,
+                'namespace' => $namespace,
             ]);
             $event->setFields($fields['fields']);
         }

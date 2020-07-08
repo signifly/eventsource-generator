@@ -32,6 +32,7 @@ class Event extends Model
         return $this;
     }
 
+    // todo: Add validation for format?
     public function addFieldsFrom(array $fieldsFrom): self
     {
         $this->fieldsFrom[] = $fieldsFrom;

@@ -6,6 +6,7 @@ class Model
 {
     private string $name;
     protected string $namespace;
+    protected string $description = '';
 
     public function __construct($name)
     {
@@ -25,6 +26,18 @@ class Model
 
     public function getFqcn(): string
     {
-        return $this->namespace.'\\'.$this->name;
+        return $this->namespace ? $this->namespace.'\\'.$this->name : $this->name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
     }
 }
