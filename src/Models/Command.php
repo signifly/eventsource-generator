@@ -28,7 +28,7 @@ class Command extends Event
         return $this;
     }
 
-    public function addComputed(string $name, array $computed): self
+    public function addComputed(string $name, Computed $computed): self
     {
         $this->computed[$name] = $computed;
 
